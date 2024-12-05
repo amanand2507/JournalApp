@@ -1,7 +1,9 @@
 package github.amanand2507.journalApp.controller;
 
+import github.amanand2507.journalApp.dto.signupDTO;
 import github.amanand2507.journalApp.entity.User;
 import github.amanand2507.journalApp.utilis.JwtUtil;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import github.amanand2507.journalApp.service.UserDetailsServiceImpl;
 import github.amanand2507.journalApp.service.UserService;
@@ -13,9 +15,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
-@RequestMapping("/public")
+@RequestMapping("")
 @Slf4j
+@Tag(name = "Authentication", description = "Authentication related endpoints")
 public class PublicController {
 
     @Autowired
@@ -28,27 +34,33 @@ public class PublicController {
     @Autowired
     private JwtUtil jwtUtil;
 
-    @GetMapping("/health-check")
-    public String healthCheck() {
-        return "Ok";
-    }
+//    @GetMapping("/health-check")
+//    public String healthCheck() {
+//        return "Ok";
+//    }
 
     @PostMapping("/signup")
-    public void signup(@RequestBody User user) {
-        userService.saveNewUser(user);
+    public  ResponseEntity<String> signup(@RequestBody signupDTO user) {
+        userService.saveNewUser(User.builder().userName(user.getUserName()).password(user.getPassword()).build());
+        return new ResponseEntity<>("Sign Up Successful Continue to login",HttpStatus.OK);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody User user) {
+    public ResponseEntity<Map<String,String>> login(@RequestBody signupDTO user) {
+        Map<String,String> res = new HashMap<>();
+
         try{
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(user.getUserName(), user.getPassword()));
             UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUserName());
             String jwt = jwtUtil.generateToken(userDetails.getUsername());
-            return new ResponseEntity<>(jwt, HttpStatus.OK);
+            res.put("token",jwt);
+            res.put("message","logged In Success");
+            return new ResponseEntity<>(res, HttpStatus.OK);
         }catch (Exception e){
             log.error("Exception occurred while createAuthenticationToken ", e);
-            return new ResponseEntity<>("Incorrect username or password", HttpStatus.BAD_REQUEST);
+            res.put("message","Incorrect username or password");
+            return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
         }
     }
 }

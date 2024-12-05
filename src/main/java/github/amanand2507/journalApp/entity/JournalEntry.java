@@ -10,7 +10,9 @@ import java.util.Date;
 
 @Document(collection = "journal_entries")
 @Data
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class JournalEntry {
     @Id
     private ObjectId id;
@@ -18,4 +20,8 @@ public class JournalEntry {
     private String title;
     private String content;
     private LocalDateTime date;
+
+    public String getId(){
+        return id.toString();
+    }
 }
