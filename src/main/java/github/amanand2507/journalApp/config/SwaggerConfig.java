@@ -40,7 +40,7 @@ public class SwaggerConfig {
                         ))
                 .addServersItem(new Server().url("http://localhost:8080")
                         .description("Local Host Server"))
-                .addServersItem(new Server().url("https://journalapp-spds.onrender.com")
+                .addServersItem(new Server().url("https://journalapp-s0uu.onrender.com")
                         .description("Production Server"));  // Add your production server URL here
     }
 }
